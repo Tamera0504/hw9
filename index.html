@@ -33,19 +33,16 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight text-slate-900">Native Speech Voice Coach</h1>
-                    <p class="text-xs text-slate-500">純原生 Web Speech API 聽讀訓練系統 (無外部 AI)</p>
+                    <p class="text-xs text-slate-500">100% 純原生 Web Speech API 聽讀訓練系統 (無額外AI外掛)</p>
                 </div>
             </div>
             <!-- Main Type Switcher: Words vs Phrases -->
             <div class="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl text-sm font-medium">
-                <button onclick="switchType('word')" id="type-word-btn" class="px-4 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition-all font-bold">
-                    <i class="fa-solid fa-book mr-1"></i> 單字庫
+                <button onclick="switchType('word')" id="type-word-btn" class="px-5 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition-all font-bold">
+                    <i class="fa-solid fa-book mr-1"></i> 單字庫 (100)
                 </button>
-                <button onclick="switchType('phrase')" id="type-phrase-btn" class="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold">
-                    <i class="fa-solid fa-comments mr-1"></i> 片語庫
-                </button>
-                <button onclick="switchType('ai-chat')" id="type-chat-btn" class="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold">
-                    <i class="fa-solid fa-robot mr-1 text-indigo-500"></i> AI 對話教練
+                <button onclick="switchType('phrase')" id="type-phrase-btn" class="px-5 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold">
+                    <i class="fa-solid fa-comments mr-1"></i> 片語庫 (30)
                 </button>
             </div>
         </div>
@@ -54,20 +51,15 @@
     <!-- Main Content Container -->
     <main class="max-w-5xl w-full mx-auto px-4 py-8 flex-grow grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <!-- Left & Center: Subcategory, Active Practice Hero Card, Phrase List / AI Chat -->
+        <!-- Left & Center: Subcategory Filter & Active Practice Hero Card -->
         <div class="lg:col-span-2 flex flex-col gap-6">
             
-            <!-- Subcategory Filter Bar or AI Generator Controls -->
-            <div id="filter-control-bar" class="flex flex-col sm:flex-row items-center justify-between bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-sm gap-3">
+            <!-- Subcategory Filter Bar -->
+            <div class="flex flex-col sm:flex-row items-center justify-between bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-sm gap-3">
                 <div class="flex items-center gap-2 overflow-x-auto py-1 w-full sm:w-auto" id="sub-category-filters">
                     <!-- Dynamically populated subcategory buttons -->
                 </div>
-                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                    <button onclick="openAIGeneratorModal()" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> AI 自訂生成題庫
-                    </button>
-                    <div class="text-xs font-semibold text-slate-400 shrink-0 ml-1" id="current-type-label">單字模式</div>
-                </div>
+                <div class="text-xs font-semibold text-slate-400 shrink-0" id="current-type-label">單字模式</div>
             </div>
 
             <!-- Active Practice Card (Hero Box) -->
@@ -79,7 +71,7 @@
                     <div>
                         <div class="flex justify-between items-center mb-4">
                             <span id="active-category-badge" class="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-semibold rounded-full uppercase tracking-wider">多益核心</span>
-                            <span id="active-index-badge" class="text-xs font-medium text-slate-400">題號 1 / 20</span>
+                            <span id="active-index-badge" class="text-xs font-medium text-slate-400">題號 1 / 100</span>
                         </div>
 
                         <!-- Target Word/Phrase -->
@@ -96,96 +88,49 @@
                     <!-- Control Buttons for Active Card -->
                     <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6 pt-6 border-t border-slate-100">
                         <!-- Listen Button -->
-                        <button onclick="playTargetPronunciation()" class="w-full sm:w-auto px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95">
+                        <button onclick="playTargetPronunciation()" class="w-full sm:w-auto px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 cursor-pointer">
                             <i class="fa-solid fa-volume-high text-indigo-600"></i>
                             <span>聽取示範發音</span>
                         </button>
 
                         <!-- Record Button -->
-                        <button id="record-btn" onclick="toggleRecording()" class="w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-200 active:scale-95">
+                        <button id="record-btn" onclick="toggleRecording()" class="w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-200 active:scale-95 cursor-pointer">
                             <i id="record-icon" class="fa-solid fa-microphone"></i>
                             <span id="record-text">點擊麥克風開始跟讀</span>
                         </button>
                     </div>
 
-                    <!-- Recognition Feedback Box (Client-side String Comparison + AI Coach Analysis) -->
+                    <!-- Recognition Feedback Box (Pure Client-side Speech Recognition Result Comparison) -->
                     <div id="feedback-container" class="mt-6 p-4 rounded-2xl bg-slate-50 border border-slate-200/60 hidden transition-all">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">原生辨識與 Gemini AI 語音教練評析</span>
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Web Speech API 辨識結果評比</span>
                             <span id="result-status-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold"></span>
                         </div>
-                        <div class="flex flex-col gap-3">
-                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                                <div>
-                                    <p class="text-xs text-slate-500">你說的內容 (Transcript)：</p>
-                                    <p id="recognized-text" class="text-base font-semibold text-slate-800 italic">"..."</p>
-                                </div>
-                                <div id="result-message" class="text-sm font-medium"></div>
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                            <div>
+                                <p class="text-xs text-slate-500">你說的內容 (Transcript)：</p>
+                                <p id="recognized-text" class="text-base font-semibold text-slate-800 italic">"..."</p>
                             </div>
-                            <!-- Gemini AI Coach Detailed Feedback -->
-                            <div id="ai-coach-feedback" class="mt-2 pt-3 border-t border-slate-200/60 text-xs text-indigo-900 bg-indigo-50/70 p-3 rounded-xl hidden">
-                                <div class="flex items-center gap-1.5 font-bold text-indigo-700 mb-1">
-                                    <i class="fa-solid fa-robot"></i> Gemini AI 語音教練建言：
-                                </div>
-                                <p id="ai-coach-text" class="leading-relaxed"></p>
-                            </div>
+                            <div id="result-message" class="text-sm font-medium"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- AI Chatbot View Container (Initially Hidden) -->
-            <div id="ai-chat-container" class="bg-white rounded-3xl p-6 border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col h-[520px] hidden">
-                <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold">
-                            <i class="fa-solid fa-robot"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-slate-900">Gemini 英語口說對話教練</h3>
-                            <p class="text-xs text-slate-500">用英語與 AI 對話，系統將自動糾正並給予口語建議</p>
-                        </div>
-                    </div>
-                    <button onclick="resetAIChat()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition-all">
-                        重新開始對話
-                    </button>
-                </div>
-                <!-- Chat Messages Scroll Area -->
-                <div id="chat-messages" class="flex-grow overflow-y-auto space-y-4 pr-2 mb-4">
-                    <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 font-bold text-xs">AI</div>
-                        <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm text-slate-700 max-w-[85%] leading-relaxed">
-                            Hello! I am your Gemini English speaking coach. Let's practice conversation. What would you like to talk about today, or how was your day?
-                        </div>
-                    </div>
-                </div>
-                <!-- Chat Input Form -->
-                <div class="pt-3 border-t border-slate-100 flex items-center gap-2">
-                    <input type="text" id="chat-input" placeholder="輸入或用麥克風說英文與 AI 對話..." class="flex-grow px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" onkeydown="if(event.key==='Enter') sendChatMessage()">
-                    <button onclick="toggleChatVoiceInput()" id="chat-mic-btn" class="w-12 h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-all shrink-0">
-                        <i class="fa-solid fa-microphone"></i>
-                    </button>
-                    <button onclick="sendChatMessage()" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl text-sm transition-all shadow-md shrink-0 flex items-center gap-2">
-                        <span>傳送</span>
-                        <i class="fa-solid fa-paper-plane"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- List of Items (Hidden in Chat Mode) -->
-            <div id="list-card-wrapper" class="bg-white rounded-3xl p-6 border border-slate-100 shadow-xl shadow-slate-200/50">
+            <!-- List of Items -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-xl shadow-slate-200/50">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-slate-800 text-lg">題庫清單 <span id="list-count" class="text-xs font-normal text-slate-400 ml-1"></span></h3>
                     <div class="text-xs text-slate-400">點擊項目即可切換練習</div>
                 </div>
-                <div id="phrase-list" class="space-y-3 max-h-[360px] overflow-y-auto pr-1">
+                <div id="phrase-list" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
                     <!-- Javascript will populate items here -->
                 </div>
             </div>
 
         </div>
 
-        <!-- Right Column: Statistics, AI Features & Guidelines -->
+        <!-- Right Column: Statistics & Browser Speech Guidelines -->
         <div class="flex flex-col gap-6">
             
             <!-- Statistics Card -->
@@ -216,35 +161,34 @@
                     </div>
                 </div>
 
-                <button onclick="resetStats()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold rounded-2xl text-sm transition-all flex items-center justify-center gap-2">
+                <button onclick="resetStats()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold rounded-2xl text-sm transition-all flex items-center justify-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-rotate-right"></i>
                     <span>重置統計數據</span>
                 </button>
             </div>
 
-            <!-- Gemini AI Integration Feature Card -->
-            <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
+            <!-- Speech API Compatibility Guide -->
+            <div class="bg-indigo-900 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
                 <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-indigo-500/20 rounded-full blur-2xl"></div>
                 <h3 class="font-bold text-base mb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-wand-magic-sparkles text-indigo-400"></i>
-                    <span>Gemini API 智慧賦能</span>
+                    <i class="fa-solid fa-circle-info text-indigo-400"></i>
+                    <span>原生語音功能提示</span>
                 </h3>
-                <p class="text-xs text-indigo-200 leading-relaxed mb-4">
-                    本系統現已結合 <code class="bg-indigo-800/80 px-1.5 py-0.5 rounded text-indigo-200">gemini-3-flash-preview</code>，支援即時 AI 語音教練分析、自訂主題題庫生成與雙向英語對話練習。
+                <p class="text-xs text-indigo-200 leading-relaxed mb-3">
+                    本系統完全使用瀏覽器內建的 <code class="bg-indigo-800/80 px-1 py-0.5 rounded text-indigo-200">SpeechSynthesis</code> 與 <code class="bg-indigo-800/80 px-1 py-0.5 rounded text-indigo-200">SpeechRecognition</code>，無需任何額外 API 金鑰或網路連線。
                 </p>
-                <button onclick="openAIGeneratorModal()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-2xl text-xs transition-all shadow-lg flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-plus-circle"></i>
-                    <span>立即生成專屬 AI 題庫</span>
-                </button>
+                <p class="text-xs text-indigo-200 leading-relaxed">
+                    <strong>提示：</strong>初次點擊麥克風跟讀時，瀏覽器會彈出麥克風授權視窗，請點選「允許」以啟用語音辨識。建議使用 Google Chrome 瀏覽器。
+                </p>
             </div>
 
-            <!-- Speech API Compatibility Alert / Guide -->
+            <!-- Speech API Compatibility Alert -->
             <div id="support-alert" class="bg-amber-50 border border-amber-200 rounded-3xl p-5 text-amber-900 text-sm hidden">
                 <div class="flex items-start gap-3">
                     <i class="fa-solid fa-circle-exclamation text-amber-600 text-lg mt-0.5"></i>
                     <div>
                         <h4 class="font-bold mb-1">語音辨識支援提醒</h4>
-                        <p class="text-xs leading-relaxed text-amber-800">您的瀏覽器可能未完整支援 Web Speech API。強烈建議使用 <strong class="underline">Google Chrome</strong> 以享有最佳語音體驗。</p>
+                        <p class="text-xs leading-relaxed text-amber-800">您的瀏覽器可能未完整支援 Web Speech API。請確保使用 <strong class="underline">Google Chrome</strong> 或 Microsoft Edge。</p>
                     </div>
                 </div>
             </div>
@@ -255,50 +199,8 @@
 
     <!-- Footer -->
     <footer class="max-w-5xl mx-auto px-4 py-6 text-center text-xs text-slate-400">
-        Native Speech Voice Coach &bull; Powered by Gemini 3 Flash API &bull; Single File Architecture
+        Native Speech Voice Coach &bull; 100% Web Speech API &bull; Single File Architecture
     </footer>
-
-    <!-- AI Generator Modal -->
-    <div id="ai-generator-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 transform transition-all">
-            <div class="flex justify-between items-center mb-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg font-bold">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-lg text-slate-900">Gemini AI 題庫生成器</h3>
-                        <p class="text-xs text-slate-500">輸入任何主題，AI 將為您客製化單字與例句</p>
-                    </div>
-                </div>
-                <button onclick="closeAIGeneratorModal()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-all">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="space-y-4 my-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">學習主題或情境 (例如：科技新創、機場海關、咖啡廳點餐)</label>
-                    <input type="text" id="ai-prompt-input" placeholder="輸入你想練習的情境或主題..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">生成類型</label>
-                    <select id="ai-type-select" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
-                        <option value="word">實用單字庫 (Word Vocabulary)</option>
-                        <option value="phrase">常用情境片語 (Practical Phrases)</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-3 mt-6">
-                <button onclick="closeAIGeneratorModal()" class="w-1/2 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold rounded-2xl text-sm transition-all">取消</button>
-                <button onclick="generateAIContent()" id="ai-generate-submit-btn" class="w-1/2 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl text-sm transition-all shadow-md flex items-center justify-center gap-2">
-                    <span>開始生成</span>
-                    <i class="fa-solid fa-arrow-right"></i>
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- Custom Modal -->
     <div id="custom-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
@@ -306,15 +208,15 @@
             <div id="modal-icon-container" class="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center mb-4 text-xl"></div>
             <h3 id="modal-title" class="font-bold text-lg text-slate-900 mb-1">提示訊息</h3>
             <p id="modal-message" class="text-sm text-slate-600 mb-6">內容描述...</p>
-            <button onclick="closeModal()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl transition-all shadow-md">我知道了</button>
+            <button onclick="closeModal()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl transition-all shadow-md cursor-pointer">我知道了</button>
         </div>
     </div>
 
     <!-- Application JavaScript -->
     <script>
-        // Comprehensive Vocabulary & Phrase Database (Default + AI Generated Items)
-        let vocabularyBank = [
-            // --- WORDS: TOEIC Core (10) ---
+        // Full Vocabulary Bank: Exactly 100 Words split across subcategories
+        const wordBank = [
+            // --- TOEIC Core (35 words) ---
             { type: 'word', subcat: 'toeic', en: "Accomplish", zh: "實現、完成、達到", example: "We can accomplish our goals if we work together." },
             { type: 'word', subcat: 'toeic', en: "Collaborate", zh: "合作、協力", example: "Our team will collaborate with overseas partners." },
             { type: 'word', subcat: 'toeic', en: "Negotiate", zh: "談判、協商", example: "They need to negotiate a better contract." },
@@ -325,8 +227,33 @@
             { type: 'word', subcat: 'toeic', en: "Strategy", zh: "策略、戰略", example: "We must develop a new marketing strategy." },
             { type: 'word', subcat: 'toeic', en: "Candidate", zh: "候選人、應徵者", example: "She is a strong candidate for the manager position." },
             { type: 'word', subcat: 'toeic', en: "Establish", zh: "建立、設立", example: "The firm was established in 1995." },
+            { type: 'word', subcat: 'toeic', en: "Acquisition", zh: "收購、取得", example: "The corporate acquisition was finalized yesterday." },
+            { type: 'word', subcat: 'toeic', en: "Allocate", zh: "分配、分派", example: "We need to allocate more budget for research." },
+            { type: 'word', subcat: 'toeic', en: "Benchmark", zh: "基準、水準", example: "This product sets a new benchmark in quality." },
+            { type: 'word', subcat: 'toeic', en: "Clientele", zh: "客戶群、顧客", example: "Our restaurant attracts a wealthy clientele." },
+            { type: 'word', subcat: 'toeic', en: "Deficit", zh: "赤字、虧損", example: "The company is working hard to reduce its budget deficit." },
+            { type: 'word', subcat: 'toeic', en: "Enterprise", zh: "企業、事業", example: "Starting a new enterprise requires careful planning." },
+            { type: 'word', subcat: 'toeic', en: "Fluctuate", zh: "波動、起伏", example: "Oil prices tend to fluctuate frequently." },
+            { type: 'word', subcat: 'toeic', en: "Incentive", zh: "獎勵、刺激", example: "Sales representatives receive bonuses as an incentive." },
+            { type: 'word', subcat: 'toeic', en: "Mandatory", zh: "強制性的、法定的", example: "Attendance at the safety seminar is mandatory." },
+            { type: 'word', subcat: 'toeic', en: "Oversight", zh: "監督、疏忽", example: "The committee provides oversight for financial operations." },
+            { type: 'word', subcat: 'toeic', en: "Portfolio", zh: "投資組合、作品集", example: "He manages an investment portfolio of millions." },
+            { type: 'word', subcat: 'toeic', en: "Prerequisite", zh: "先決條件", example: "Basic accounting is a prerequisite for this course." },
+            { type: 'word', subcat: 'toeic', en: "Reimburse", zh: "報銷、償還", example: "The company will reimburse your travel expenses." },
+            { type: 'word', subcat: 'toeic', en: "Stipulate", zh: "規定、約定", example: "The contract stipulates delivery within 30 days." },
+            { type: 'word', subcat: 'toeic', en: "Subsidy", zh: "補助金、津貼", example: "The government offers a subsidy for renewable energy." },
+            { type: 'word', subcat: 'toeic', en: "Tentative", zh: "暫時的、試驗性的", example: "We have a tentative schedule for the launch event." },
+            { type: 'word', subcat: 'toeic', en: "Unanimous", zh: "意見一致的", example: "The board reached a unanimous decision." },
+            { type: 'word', subcat: 'toeic', en: "Venture", zh: "風險投資、企業", example: "The joint venture proved to be very successful." },
+            { type: 'word', subcat: 'toeic', en: "Yield", zh: "產量、收益、產生", example: "Fertilizer can significantly increase crop yield." },
+            { type: 'word', subcat: 'toeic', en: "Merger", zh: "合併、併購", example: "The merger between the two banks was approved." },
+            { type: 'word', subcat: 'toeic', en: "Consensus", zh: "共識、一致意見", example: "We need to build a consensus among team members." },
+            { type: 'word', subcat: 'toeic', en: "Logistics", zh: "物流、後勤", example: "She is in charge of shipping and logistics." },
+            { type: 'word', subcat: 'toeic', en: "Auditor", zh: "審計員、查帳員", example: "An independent auditor reviewed our accounts." },
+            { type: 'word', subcat: 'toeic', en: "Brochure", zh: "宣傳冊、說明書", example: "Please take a look at our travel brochure." },
+            { type: 'word', subcat: 'toeic', en: "Commodity", zh: "商品、日用品", example: "Coffee is a major traded commodity." },
 
-            // --- WORDS: Daily Practical (12) ---
+            // --- Daily Practical (35 words) ---
             { type: 'word', subcat: 'daily', en: "Curious", zh: "好奇的", example: "Children are naturally curious about the world." },
             { type: 'word', subcat: 'daily', en: "Fascinating", zh: "迷人的、極有趣的", example: "This science book is truly fascinating." },
             { type: 'word', subcat: 'daily', en: "Courage", zh: "勇氣、膽量", example: "It takes courage to speak in public." },
@@ -339,34 +266,105 @@
             { type: 'word', subcat: 'daily', en: "Maintain", zh: "維持、保養", example: "It is important to maintain a healthy lifestyle." },
             { type: 'word', subcat: 'daily', en: "Sincere", zh: "真誠的、誠懇的", example: "Please accept my most sincere apologies." },
             { type: 'word', subcat: 'daily', en: "Essential", zh: "必要的、不可或缺的", example: "Water is essential for all living creatures." },
+            { type: 'word', subcat: 'daily', en: "Resilient", zh: "有彈性的、適應力強的", example: "She remained resilient through difficult times." },
+            { type: 'word', subcat: 'daily', en: "Spontaneous", zh: "自發的、即興的", example: "We took a spontaneous trip to the beach." },
+            { type: 'word', subcat: 'daily', en: "Meticulous", zh: "一絲不苟的、精細的", example: "He is meticulous about keeping records." },
+            { type: 'word', subcat: 'daily', en: "Diligent", zh: "勤奮的、用功的", example: "She is a diligent student who always finishes homework." },
+            { type: 'word', subcat: 'daily', en: "Generous", zh: "慷慨的、大方的", example: "Thank you for your generous donation." },
+            { type: 'word', subcat: 'daily', en: "Hospitality", zh: "好客、殷勤招待", example: "We thank our hosts for their wonderful hospitality." },
+            { type: 'word', subcat: 'daily', en: "Innovative", zh: "創新的、革新的", example: "Our company values innovative thinking." },
+            { type: 'word', subcat: 'daily', en: "Magnificent", zh: "壯麗的、宏偉的", example: "The view from the mountain top was magnificent." },
+            { type: 'word', subcat: 'daily', en: "Nostalgic", zh: "懷舊的、念舊的", example: "Hearing that song made me feel nostalgic." },
+            { type: 'word', subcat: 'daily', en: "Outstanding", zh: "傑出的、優秀的", example: "Her performance in the play was outstanding." },
+            { type: 'word', subcat: 'daily', en: "Peculiar", zh: "奇怪的、古怪的", example: "I noticed a peculiar noise coming from the engine." },
+            { type: 'word', subcat: 'daily', en: "Quaint", zh: "古雅的、別緻的", example: "They stayed in a quaint little village in Europe." },
+            { type: 'word', subcat: 'daily', en: "Radiant", zh: "發光的、容光煥發的", example: "The bride looked radiant on her wedding day." },
+            { type: 'word', subcat: 'daily', en: "Serene", zh: "寧靜的、安詳的", example: "The lake looked serene in the early morning." },
+            { type: 'word', subcat: 'daily', en: "Tranquil", zh: "平靜的、清靜的", example: "We enjoyed a tranquil afternoon in the garden." },
+            { type: 'word', subcat: 'daily', en: "Versatile", zh: "多才多藝的、多用途的", example: "This tool is extremely versatile for home repairs." },
+            { type: 'word', subcat: 'daily', en: "Wholesome", zh: "健康的、有益身心的", example: "Home-cooked meals are wholesome and nutritious." },
+            { type: 'word', subcat: 'daily', en: "Zealous", zh: "熱情的、熱心腸的", example: "He is a zealous supporter of environmental causes." },
+            { type: 'word', subcat: 'daily', en: "Ambition", zh: "雄心、抱負", example: "She has the ambition to become a CEO." },
+            { type: 'word', subcat: 'daily', en: "Breathtaking", zh: "驚人的、美得驚人的", example: "The sunset over the ocean was breathtaking." },
+            { type: 'word', subcat: 'daily', en: "Compassion", zh: "同情心、憐憫", example: "Show compassion to animals in need." },
+            { type: 'word', subcat: 'daily', en: "Determination", zh: "決心、堅定", example: "With strong determination, anything is possible." },
+            { type: 'word', subcat: 'daily', en: "Enthusiasm", zh: "熱情、熱忱", example: "She tackled the new project with great enthusiasm." },
 
-            // --- PHRASES: Daily Conversation (6) ---
+            // --- Academic & Advanced (30 words) ---
+            { type: 'word', subcat: 'academic', en: "Ambiguous", zh: "含糊不清的、模棱兩可的", example: "His instructions were somewhat ambiguous." },
+            { type: 'word', subcat: 'academic', en: "Comprehensive", zh: "全面的、綜合性的", example: "We conducted a comprehensive review of the data." },
+            { type: 'word', subcat: 'academic', en: "Demonstrate", zh: "證明、示範", example: "The experiment will demonstrate how gravity works." },
+            { type: 'word', subcat: 'academic', en: "Emphasize", zh: "強調、着重", example: "The teacher emphasized the importance of reading." },
+            { type: 'word', subcat: 'academic', en: "Formulate", zh: "規劃、構想、公式化", example: "Scientists formulate new hypotheses to test." },
+            { type: 'word', subcat: 'academic', en: "Hypothesis", zh: "假設、假說", example: "Further research is needed to prove the hypothesis." },
+            { type: 'word', subcat: 'academic', en: "Interpret", zh: "解釋、口譯、詮釋", example: "It is hard to interpret these complicated statistics." },
+            { type: 'word', subcat: 'academic', en: "Justify", zh: "證明...正當、辯護", example: "How do you justify your absence yesterday?" },
+            { type: 'word', subcat: 'academic', en: "Mechanism", zh: "機制、機械裝置", example: "We need to understand the mechanism of disease." },
+            { type: 'word', subcat: 'academic', en: "Paradigm", zh: "範例、典範", example: "This discovery creates a new scientific paradigm." },
+            { type: 'word', subcat: 'academic', en: "Qualitative", zh: "質化的、品質上的", example: "The study focuses on qualitative interview data." },
+            { type: 'word', subcat: 'academic', en: "Quantitative", zh: "量化的、數量上的", example: "We gathered quantitative metrics for the survey." },
+            { type: 'word', subcat: 'academic', en: "Significant", zh: "顯著的、有重大意義的", example: "There was a significant improvement in scores." },
+            { type: 'word', subcat: 'academic', en: "Theoretical", zh: "理論上的", example: "This concept is purely theoretical for now." },
+            { type: 'word', subcat: 'academic', en: "Validate", zh: "驗證、使生效", example: "Laboratory tests validate our initial findings." },
+            { type: 'word', subcat: 'academic', en: "Anomalous", zh: "異常的、不規則的", example: "The report contained anomalous weather figures." },
+            { type: 'word', subcat: 'academic', en: "Bureaucracy", zh: "官僚體制", example: "Red tape and bureaucracy slowed down the project." },
+            { type: 'word', subcat: 'academic', en: "Chronological", zh: "按時間順序的", example: "The documents are arranged in chronological order." },
+            { type: 'word', subcat: 'academic', en: "Dicotomy", zh: "二分法、對立", example: "There is a false dichotomy between science and art." },
+            { type: 'word', subcat: 'academic', en: "Empirical", zh: "經驗主義的、實證的", example: "Empirical evidence supports this scientific claim." },
+            { type: 'word', subcat: 'academic', en: "Fluorescence", zh: "螢光", example: "Some minerals exhibit fluorescence under UV light." },
+            { type: 'word', subcat: 'academic', en: "Hierarchy", zh: "階層、等級制度", example: "Corporate hierarchy defines management levels." },
+            { type: 'word', subcat: 'academic', en: "Inevitable", zh: "無可避免的、必然的", example: "Change is an inevitable part of life." },
+            { type: 'word', subcat: 'academic', en: "Juxtapose", zh: "並置、並列對比", example: "The artist likes to juxtapose light and dark colors." },
+            { type: 'word', subcat: 'academic', en: "Metabolism", zh: "新陳代謝", example: "Regular exercise helps boost your metabolism." },
+            { type: 'word', subcat: 'academic', en: "Nomenclature", zh: "命名法、術語", example: "Scientific nomenclature follows strict international rules." },
+            { type: 'word', subcat: 'academic', en: "Ostracize", zh: "排擠、逐出社交圈", example: "He was ostracized by his peers after the scandal." },
+            { type: 'word', subcat: 'academic', en: "Pragmatic", zh: "務實的、講求實效的", example: "We need a pragmatic solution to this problem." },
+            { type: 'word', subcat: 'academic', en: "Rhetoric", zh: "修辭、雄辯言辭", example: "Politicians often use persuasive rhetoric." },
+            { type: 'word', subcat: 'academic', en: "Synthesis", zh: "綜合、合成", example: "Chemical synthesis creates new synthetic compounds." }
+        ];
+
+        // Full Phrase Bank: Exactly 30 Phrases split across subcategories
+        const phraseBank = [
+            // --- Daily Conversation (10 phrases) ---
             { type: 'phrase', subcat: 'daily', en: "How are you doing?", zh: "你好嗎？近況如何？", example: "Hi John, how are you doing today?" },
-            { type: 'phrase', subcat: 'phrase', subcat: 'daily', en: "It's a pleasure to meet you.", zh: "很高興認識你。", example: "Welcome to our office, it's a pleasure to meet you." },
+            { type: 'phrase', subcat: 'daily', en: "It's a pleasure to meet you.", zh: "很高興認識你。", example: "Welcome to our office, it's a pleasure to meet you." },
             { type: 'phrase', subcat: 'daily', en: "Could you help me please?", zh: "可以請你幫個忙嗎？", example: "Excuse me, could you help me please?" },
-            { type: 'phrase', subcat: 'phrase', subcat: 'daily', en: "Have a wonderful day!", zh: "祝你有美好的一天！", example: "Thank you for shopping with us, have a wonderful day!" },
-            { type: 'phrase', subcat: 'phrase', subcat: 'daily', en: "What's on your mind?", zh: "你在想什麼？心事重重嗎？", example: "You look quiet, what's on your mind?" },
-            { type: 'phrase', subcat: 'phrase', subcat: 'daily', en: "Take your time.", zh: "不用急，慢慢來。", example: "There is no rush, take your time." },
+            { type: 'phrase', subcat: 'daily', en: "Have a wonderful day!", zh: "祝你有美好的一天！", example: "Thank you for shopping with us, have a wonderful day!" },
+            { type: 'phrase', subcat: 'daily', en: "What's on your mind?", zh: "你在想什麼？心事重重嗎？", example: "You look quiet, what's on your mind?" },
+            { type: 'phrase', subcat: 'daily', en: "Take your time.", zh: "不用急，慢慢來。", example: "There is no rush, take your time." },
+            { type: 'phrase', subcat: 'daily', en: "I couldn't agree more.", zh: "我完全同意。", example: "You are totally right, I couldn't agree more." },
+            { type: 'phrase', subcat: 'daily', en: "Keep in touch.", zh: "保持聯絡。", example: "Don't forget to keep in touch when you move abroad." },
+            { type: 'phrase', subcat: 'daily', en: "Let's call it a day.", zh: "今天就到這裡吧、收工！", example: "We have worked for 8 hours, let's call it a day." },
+            { type: 'phrase', subcat: 'daily', en: "Better safe than sorry.", zh: "小心駛得萬年船、防患未然。", example: "Always check your car tires before a long drive, better safe than sorry." },
 
-            // --- PHRASES: Business & Office (6) ---
+            // --- Business & Office (10 phrases) ---
             { type: 'phrase', subcat: 'business', en: "Let's schedule a meeting.", zh: "我們來安排一個會議吧。", example: "Let's schedule a meeting for tomorrow morning." },
             { type: 'phrase', subcat: 'business', en: "Could you clarify this point?", zh: "你能釐清一下這個重點嗎？", example: "I'm a bit confused, could you clarify this point?" },
             { type: 'phrase', subcat: 'business', en: "I look forward to hearing from you.", zh: "期待您的回覆。", example: "Thank you for your proposal, I look forward to hearing from you." },
             { type: 'phrase', subcat: 'business', en: "As far as I'm concerned", zh: "就我而言、依我來看", example: "As far as I'm concerned, this plan works well." },
             { type: 'phrase', subcat: 'business', en: "Get down to business", zh: "言歸正傳、開始談正事", example: "Let's stop chatting and get down to business." },
             { type: 'phrase', subcat: 'business', en: "Keep up the good work.", zh: "繼續保持好表現！", example: "Your report was excellent, keep up the good work." },
+            { type: 'phrase', subcat: 'business', en: "Hit the nail on the head", zh: "說得完全中肯、一針見血", example: "Your analysis hit the nail on the head." },
+            { type: 'phrase', subcat: 'business', en: "Back to the drawing board", zh: "重新來過、從頭規劃", example: "The client rejected our proposal, so it's back to the drawing board." },
+            { type: 'phrase', subcat: 'phrase', subcat: 'business', en: "Out of the question", zh: "不可能的、不予考慮的", example: "Missing this deadline is completely out of the question." },
+            { type: 'phrase', subcat: 'business', en: "Ball is in your court", zh: "球在妳手上、輪到你做決定了", example: "I gave you my offer, now the ball is in your court." },
 
-            // --- PHRASES: Travel & Lifestyle (5) ---
+            // --- Travel & Lifestyle (10 phrases) ---
             { type: 'phrase', subcat: 'travel', en: "Where is the nearest station?", zh: "最近的車站在哪裡？", example: "Excuse me, where is the nearest station?" },
             { type: 'phrase', subcat: 'travel', en: "How much does this cost?", zh: "這個多少錢？", example: "I like this souvenir, how much does this cost?" },
             { type: 'phrase', subcat: 'travel', en: "I would like to check in, please.", zh: "我想要辦理入住登記。", example: "Good afternoon, I would like to check in, please." },
             { type: 'phrase', subcat: 'travel', en: "Could you recommend a good restaurant?", zh: "你能推薦一間好餐廳嗎？", example: "We are hungry, could you recommend a good restaurant?" },
-            { type: 'phrase', subcat: 'travel', en: "Have a safe flight!", zh: "祝您旅途平安、飛行順利！", example: "Goodbye and have a safe flight home!" }
+            { type: 'phrase', subcat: 'travel', en: "Have a safe flight!", zh: "祝您旅途平安、飛行順利！", example: "Goodbye and have a safe flight home!" },
+            { type: 'phrase', subcat: 'travel', en: "Is breakfast included?", zh: "房價包含早餐嗎？", example: "Excuse me, is breakfast included in our room rate?" },
+            { type: 'phrase', subcat: 'travel', en: "Could I have the bill please?", zh: "可以請幫我結帳嗎？", example: "We are ready to leave, could I have the bill please?" },
+            { type: 'phrase', subcat: 'travel', en: "I am looking for a drugstore.", zh: "我正在找藥妝店。", example: "I have a slight headache, I am looking for a drugstore." },
+            { type: 'phrase', subcat: 'travel', en: "Can I pay by credit card?", zh: "可以用信用卡付款嗎？", example: "I don't have enough cash, can I pay by credit card?" },
+            { type: 'phrase', subcat: 'travel', en: "Where can I catch a taxi?", zh: "我在哪裡可以搭計程車？", example: "It's raining heavily, where can I catch a taxi?" }
         ];
 
         // State variables
-        let currentType = 'word'; // 'word', 'phrase', or 'ai-chat'
-        let currentSubCat = 'all'; // 'all', 'toeic', 'daily', 'business', 'travel', 'ai-custom'
+        let currentType = 'word'; // 'word' or 'phrase'
+        let currentSubCat = 'all'; // subcategory filter
         let currentIndex = 0;
         let filteredItems = [];
 
@@ -377,18 +375,9 @@
             incorrectCount: 0
         };
 
-        // Speech Recognition Setup (Native Web Speech API)
+        // Speech Recognition Setup (100% Native Web Speech API)
         let recognition = null;
         let isRecording = false;
-        let chatVoiceActive = false;
-
-        // AI Chat History
-        let chatHistory = [
-            {
-                role: "model",
-                parts: [{ text: "Hello! I am your Gemini English speaking coach. Let's practice conversation. What would you like to talk about today, or how was your day?" }]
-            }
-        ];
 
         window.addEventListener('DOMContentLoaded', () => {
             initSpeechRecognition();
@@ -400,7 +389,7 @@
             }
         });
 
-        // Switch between Words, Phrases, and AI Chat Tab
+        // Switch between Words and Phrases
         function switchType(type) {
             currentType = type;
             currentSubCat = 'all';
@@ -408,40 +397,16 @@
 
             const wordBtn = document.getElementById('type-word-btn');
             const phraseBtn = document.getElementById('type-phrase-btn');
-            const chatBtn = document.getElementById('type-chat-btn');
             const typeLabel = document.getElementById('current-type-label');
-            const filterControlBar = document.getElementById('filter-control-bar');
-            const practiceCardContainer = document.getElementById('practice-card-container');
-            const aiChatContainer = document.getElementById('ai-chat-container');
-            const listCardWrapper = document.getElementById('list-card-wrapper');
-
-            if (type === 'ai-chat') {
-                wordBtn.className = "px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold";
-                phraseBtn.className = "px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold";
-                chatBtn.className = "px-4 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition-all font-bold";
-                typeLabel.textContent = "AI 對話教練";
-                filterControlBar.classList.add('hidden');
-                practiceCardContainer.classList.add('hidden');
-                aiChatContainer.classList.remove('hidden');
-                listCardWrapper.classList.add('hidden');
-                return;
-            }
-
-            filterControlBar.classList.remove('hidden');
-            practiceCardContainer.classList.remove('hidden');
-            aiChatContainer.classList.add('hidden');
-            listCardWrapper.classList.remove('hidden');
 
             if (type === 'word') {
-                wordBtn.className = "px-4 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition-all font-bold";
-                phraseBtn.className = "px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold";
-                chatBtn.className = "px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold";
-                typeLabel.textContent = "單字模式";
+                wordBtn.className = "px-5 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition-all font-bold";
+                phraseBtn.className = "px-5 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold";
+                typeLabel.textContent = "單字模式 (100)";
             } else {
-                phraseBtn.className = "px-4 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition-all font-bold";
-                wordBtn.className = "px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold";
-                chatBtn.className = "px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold";
-                typeLabel.textContent = "片語模式";
+                phraseBtn.className = "px-5 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition-all font-bold";
+                wordBtn.className = "px-5 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold";
+                typeLabel.textContent = "片語模式 (30)";
             }
 
             renderSubCategoryFilters();
@@ -456,25 +421,24 @@
             let subcats = [];
             if (currentType === 'word') {
                 subcats = [
-                    { id: 'all', name: '全部單字' },
-                    { id: 'toeic', name: '多益核心' },
-                    { id: 'daily', name: '日常實用' },
-                    { id: 'ai-custom', name: '✨ AI 自訂單字' }
+                    { id: 'all', name: '全部單字 (100)' },
+                    { id: 'toeic', name: '多益核心 (35)' },
+                    { id: 'daily', name: '日常實用 (35)' },
+                    { id: 'academic', name: '進階學術 (30)' }
                 ];
             } else {
                 subcats = [
-                    { id: 'all', name: '全部片語' },
-                    { id: 'daily', name: '日常對話' },
-                    { id: 'business', name: '職場商務' },
-                    { id: 'travel', name: '旅遊生活' },
-                    { id: 'ai-custom', name: '✨ AI 自訂片語' }
+                    { id: 'all', name: '全部片語 (30)' },
+                    { id: 'daily', name: '日常對話 (10)' },
+                    { id: 'business', name: '職場商務 (10)' },
+                    { id: 'travel', name: '旅遊生活 (10)' }
                 ];
             }
 
             subcats.forEach(sc => {
                 const btn = document.createElement('button');
                 const isActive = currentSubCat === sc.id;
-                btn.className = `px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 ${
+                btn.className = `px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer ${
                     isActive 
                         ? 'bg-indigo-600 text-white shadow-sm' 
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -490,10 +454,10 @@
             });
         }
 
-        // Filter vocabulary based on currentType and currentSubCat
+        // Filter items based on currentType and currentSubCat
         function updateFilteredItems() {
-            filteredItems = vocabularyBank.filter(item => {
-                if (item.type !== currentType) return false;
+            const source = currentType === 'word' ? wordBank : phraseBank;
+            filteredItems = source.filter(item => {
                 if (currentSubCat !== 'all' && item.subcat !== currentSubCat) return false;
                 return true;
             });
@@ -522,35 +486,20 @@
 
             recognition.onstart = () => {
                 isRecording = true;
-                if (chatVoiceActive) {
-                    document.getElementById('chat-mic-btn').className = "w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center transition-all shrink-0 animate-pulse";
-                } else {
-                    setRecordingState(true);
-                }
+                setRecordingState(true);
             };
 
             recognition.onresult = (event) => {
                 const transcript = event.results[0][0].transcript;
-                if (chatVoiceActive) {
-                    document.getElementById('chat-input').value = transcript;
-                    chatVoiceActive = false;
-                    document.getElementById('chat-mic-btn').className = "w-12 h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-all shrink-0";
-                    sendChatMessage();
-                } else {
-                    processClientSideComparison(transcript);
-                }
+                processVoiceComparison(transcript);
             };
 
             recognition.onerror = (event) => {
                 console.warn('Speech recognition error:', event.error);
-                chatVoiceActive = false;
-                document.getElementById('chat-mic-btn').className = "w-12 h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-all shrink-0";
                 stopRecordingState();
             };
 
             recognition.onend = () => {
-                chatVoiceActive = false;
-                document.getElementById('chat-mic-btn').className = "w-12 h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-all shrink-0";
                 stopRecordingState();
             };
         }
@@ -574,32 +523,15 @@
                     console.error(e);
                 }
             } else {
-                chatVoiceActive = false;
                 try {
                     recognition.start();
                 } catch (e) {
                     console.error(e);
-                    recognition.stop();
-                    setTimeout(() => recognition.start(), 200);
+                    try {
+                        recognition.stop();
+                        setTimeout(() => recognition.start(), 200);
+                    } catch (err) {}
                 }
-            }
-        }
-
-        function toggleChatVoiceInput() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                showModal('不支援', '您的瀏覽器不支援語音辨識。', 'error');
-                return;
-            }
-            if (!recognition) {
-                initSpeechRecognition();
-            }
-            chatVoiceActive = true;
-            try {
-                recognition.start();
-            } catch (e) {
-                recognition.stop();
-                setTimeout(() => recognition.start(), 200);
             }
         }
 
@@ -610,7 +542,7 @@
             const text = document.getElementById('record-text');
 
             if (active) {
-                btn.className = "w-full sm:w-auto px-8 py-3 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-rose-200 animate-pulse active:scale-95";
+                btn.className = "w-full sm:w-auto px-8 py-3 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-rose-200 animate-pulse active:scale-95 cursor-pointer";
                 icon.className = "fa-solid fa-microphone-slash";
                 text.textContent = "聆聽中... 請開口說英文";
             } else {
@@ -624,13 +556,13 @@
             const icon = document.getElementById('record-icon');
             const text = document.getElementById('record-text');
 
-            btn.className = "w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-200 active:scale-95";
+            btn.className = "w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-200 active:scale-95 cursor-pointer";
             icon.className = "fa-solid fa-microphone";
             text.textContent = "點擊麥克風開始跟讀";
         }
 
-        // Pure Client-Side String Comparison + Gemini AI Coach Feedback
-        async function processClientSideComparison(transcript) {
+        // Pure Client-Side String Comparison for Web Speech API Transcript
+        function processVoiceComparison(transcript) {
             const currentItem = filteredItems[currentIndex];
             if (!currentItem) return;
 
@@ -660,8 +592,6 @@
             const statusBadge = document.getElementById('result-status-badge');
             const recognizedTextEl = document.getElementById('recognized-text');
             const resultMsgEl = document.getElementById('result-message');
-            const aiCoachBox = document.getElementById('ai-coach-feedback');
-            const aiCoachText = document.getElementById('ai-coach-text');
 
             container.classList.remove('hidden');
             recognizedTextEl.textContent = `"${transcript}"`;
@@ -670,83 +600,47 @@
                 container.className = "mt-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 transition-all";
                 statusBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800";
                 statusBadge.textContent = "念對了 (Correct)";
-                resultMsgEl.innerHTML = `<span class="text-emerald-700 font-semibold flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> 發音相符！完美跟讀</span>`;
+                resultMsgEl.innerHTML = `<span class="text-emerald-700 font-semibold flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> 語音辨識吻合！完美跟讀</span>`;
             } else {
                 container.className = "mt-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 transition-all";
                 statusBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800";
                 statusBadge.textContent = "需加強 (Incorrect)";
-                resultMsgEl.innerHTML = `<span class="text-rose-700 font-semibold flex items-center gap-1"><i class="fa-solid fa-circle-xmark"></i> 辨識結果與目標有落差</span>`;
-            }
-
-            // Call Gemini API for detailed pronunciation coaching feedback
-            aiCoachBox.classList.remove('hidden');
-            aiCoachText.textContent = "Gemini AI 正在分析您的語音跟讀與發音細節...";
-
-            try {
-                const coachingPrompt = `You are a professional English speech coach. The user is practicing the target ${currentItem.type === 'word' ? 'word' : 'phrase'}: "${currentItem.en}" (${currentItem.zh}). The user's speech recognition transcript was: "${transcript}". Please provide a short, encouraging, and constructive coaching feedback in Traditional Chinese (繁體中文), including pronunciation tips or tone correction if needed (within 50 words).`;
-                
-                const payload = {
-                    contents: [{ parts: [{ text: coachingPrompt }] }],
-                    systemInstruction: { parts: [{ text: "You are a professional, helpful English speaking coach." }] }
-                };
-
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=`;
-                let success = false;
-                let data = null;
-                let delay = 1000;
-
-                for (let attempt = 0; attempt < 3; attempt++) {
-                    try {
-                        const response = await fetch(apiUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-                        if (response.ok) {
-                            data = await response.json();
-                            success = true;
-                            break;
-                        }
-                    } catch (err) {
-                        // retry with backoff
-                    }
-                    await new Promise(res => setTimeout(res, delay));
-                    delay *= 2;
-                }
-
-                if (success && data && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-                    aiCoachText.textContent = data.candidates[0].content.parts[0].text;
-                } else {
-                    aiCoachText.textContent = isCorrect ? "發音非常標準！請保持這個語調與速度繼續練習下一個單字。" : "建議放慢速度，重音放在音節重音處，再次嘗試按下麥克風跟讀。";
-                }
-            } catch (e) {
-                aiCoachText.textContent = "跟讀表現已紀錄，建議多聽示範發音以修正語調。";
+                resultMsgEl.innerHTML = `<span class="text-rose-700 font-semibold flex items-center gap-1"><i class="fa-solid fa-circle-xmark"></i> 與目標語句有落差，再試一次</span>`;
             }
 
             renderList();
         }
 
-        // Native Text-to-Speech Pronunciation
+        // 100% Native Text-to-Speech Pronunciation with robust error and cancellation handling
         function playTargetPronunciation() {
             const currentItem = filteredItems[currentIndex];
             if (!currentItem) return;
-
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(currentItem.en);
-                utterance.lang = 'en-US';
-                utterance.rate = 0.9;
-                window.speechSynthesis.speak(utterance);
-            }
+            playSpecificPronunciation(currentItem.en);
         }
 
         function playSpecificPronunciation(text) {
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-US';
-                utterance.rate = 0.9;
-                window.speechSynthesis.speak(utterance);
+                try {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'en-US';
+                    utterance.rate = 0.9;
+                    utterance.pitch = 1.0;
+                    
+                    // Fallback ensure voices are loaded
+                    const voices = window.speechSynthesis.getVoices();
+                    if (voices.length > 0) {
+                        const englishVoice = voices.find(v => v.lang.startsWith('en'));
+                        if (englishVoice) utterance.voice = englishVoice;
+                    }
+
+                    window.speechSynthesis.speak(utterance);
+                } catch (e) {
+                    console.error("Speech synthesis error:", e);
+                    showModal('語音播放提示', '瀏覽器語音播放發生阻攔，請點擊頁面任意處後再試一次。', 'warning');
+                }
+            } else {
+                showModal('不支援', '您的瀏覽器不支援語音朗讀功能。', 'error');
             }
         }
 
@@ -782,7 +676,7 @@
                             <p class="text-xs text-slate-500">${item.zh}</p>
                         </div>
                     </div>
-                    <button onclick="event.stopPropagation(); playSpecificPronunciation('${item.en.replace(/'/g, "\\'")}')" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-all shrink-0">
+                    <button onclick="event.stopPropagation(); playSpecificPronunciation('${item.en.replace(/'/g, "\\'")}')" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-all shrink-0 cursor-pointer">
                         <i class="fa-solid fa-volume-high text-xs"></i>
                     </button>
                 `;
@@ -795,7 +689,7 @@
             const currentItem = filteredItems[currentIndex];
             if (!currentItem) {
                 document.getElementById('target-phrase').textContent = "無項目";
-                document.getElementById('target-translation').textContent = "請透過上方按鈕切換或使用 AI 生成題庫";
+                document.getElementById('target-translation').textContent = "請透過上方按鈕切換";
                 document.getElementById('target-example').textContent = "";
                 document.getElementById('feedback-container').classList.add('hidden');
                 return;
@@ -808,10 +702,10 @@
             
             let badgeName = currentType === 'word' ? '單字訓練' : '片語訓練';
             if (currentItem.subcat === 'toeic') badgeName = '多益核心單字';
+            if (currentItem.subcat === 'daily') badgeName = currentType === 'word' ? '日常實用單字' : '日常對話片語';
+            if (currentItem.subcat === 'academic') badgeName = '進階學術單字';
             if (currentItem.subcat === 'business') badgeName = '職場商務片語';
             if (currentItem.subcat === 'travel') badgeName = '旅遊生活片語';
-            if (currentItem.subcat === 'daily') badgeName = '日常實用';
-            if (currentItem.subcat === 'ai-custom') badgeName = '✨ Gemini AI 客製題庫';
             
             document.getElementById('active-category-badge').textContent = badgeName;
             document.getElementById('feedback-container').classList.add('hidden');
@@ -834,242 +728,6 @@
             stats = { totalAttempts: 0, correctCount: 0, incorrectCount: 0 };
             updateStatsUI();
             showModal('重置完成', '已成功清除所有練習統計紀錄。', 'success');
-        }
-
-        // AI Generator Modal Control
-        function openAIGeneratorModal() {
-            document.getElementById('ai-generator-modal').classList.remove('hidden');
-        }
-
-        function closeAIGeneratorModal() {
-            document.getElementById('ai-generator-modal').classList.add('hidden');
-        }
-
-        // Generate AI Content via Gemini Structured API
-        async function generateAIContent() {
-            const promptInput = document.getElementById('ai-prompt-input').value.trim();
-            const typeSelect = document.getElementById('ai-type-select').value;
-
-            if (!promptInput) {
-                showModal('提示', '請輸入您想要練習的學習主題或情境。', 'warning');
-                return;
-            }
-
-            const submitBtn = document.getElementById('ai-generate-submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i><span>AI 生成中...</span>`;
-
-            try {
-                const systemPrompt = "You are an expert English curriculum designer. Generate 5 high-quality English vocabulary items or phrases with Traditional Chinese translations and natural example sentences based on the user's topic.";
-                const userPrompt = `Topic: "${promptInput}". Type: "${typeSelect}".`;
-
-                const payload = {
-                    contents: [{ role: "user", parts: [{ text: userPrompt }] }],
-                    systemInstruction: { parts: [{ text: systemPrompt }] },
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        responseSchema: {
-                            type: "ARRAY",
-                            items: {
-                                type: "OBJECT",
-                                properties: {
-                                    "en": { "type": "STRING", "description": "English word or phrase" },
-                                    "zh": { "type": "STRING", "description": "Traditional Chinese translation" },
-                                    "example": { "type": "STRING", "description": "Natural example sentence in English" }
-                                },
-                                "propertyOrdering": ["en", "zh", "example"]
-                            }
-                        }
-                    }
-                };
-
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=`;
-                let response = null;
-                let delay = 1000;
-
-                for (let attempt = 0; attempt < 3; attempt++) {
-                    try {
-                        const res = await fetch(apiUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-                        if (res.ok) {
-                            response = await res.json();
-                            break;
-                        }
-                    } catch (e) {}
-                    await new Promise(res => setTimeout(res, delay));
-                    delay *= 2;
-                }
-
-                if (response && response.candidates?.[0]?.content?.parts?.[0]?.text) {
-                    const jsonText = response.candidates[0].content.parts[0].text;
-                    const parsedItems = JSON.parse(jsonText);
-
-                    // Add to vocabularyBank
-                    parsedItems.forEach(item => {
-                        vocabularyBank.unshift({
-                            type: typeSelect,
-                            subcat: 'ai-custom',
-                            en: item.en,
-                            zh: item.zh,
-                            example: item.example
-                        });
-                    });
-
-                    currentType = typeSelect;
-                    currentSubCat = 'ai-custom';
-                    currentIndex = 0;
-                    
-                    if (currentType === 'word') {
-                        document.getElementById('type-word-btn').className = "px-4 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition-all font-bold";
-                        document.getElementById('type-phrase-btn').className = "px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold";
-                        document.getElementById('current-type-label').textContent = "單字模式";
-                    } else {
-                        document.getElementById('type-phrase-btn').className = "px-4 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition-all font-bold";
-                        document.getElementById('type-word-btn').className = "px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold";
-                        document.getElementById('current-type-label').textContent = "片語模式";
-                    }
-
-                    closeAIGeneratorModal();
-                    document.getElementById('ai-prompt-input').value = '';
-                    renderSubCategoryFilters();
-                    updateFilteredItems();
-                    showModal('生成成功', `Gemini 成功為您建立 ${parsedItems.length} 項關於「${promptInput}」的客製化練習題！`, 'success');
-                } else {
-                    throw new Error("Invalid API response");
-                }
-            } catch (e) {
-                showModal('生成失敗', '無法順利生成題庫，請檢查網路連線或稍後再試。', 'error');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = `<span>開始生成</span><i class="fa-solid fa-arrow-right"></i>`;
-            }
-        }
-
-        // AI Chat Functionality
-        async function sendChatMessage() {
-            const inputEl = document.getElementById('chat-input');
-            const messageText = inputEl.value.trim();
-            if (!messageText) return;
-
-            const chatMessages = document.getElementById('chat-messages');
-            
-            // Append user message
-            chatMessages.innerHTML += `
-                <div class="flex items-start justify-end gap-3">
-                    <div class="bg-indigo-600 text-white rounded-2xl p-4 text-sm max-w-[85%] leading-relaxed shadow-sm">
-                        ${escapeHtml(messageText)}
-                    </div>
-                    <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 font-bold text-xs">You</div>
-                </div>
-            `;
-            inputEl.value = '';
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            chatHistory.push({ role: "user", parts: [{ text: messageText }] });
-
-            // Append loading indicator
-            const loadingId = 'loading-' + Date.now();
-            chatMessages.innerHTML += `
-                <div id="${loadingId}" class="flex items-start gap-3">
-                    <div class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 font-bold text-xs">AI</div>
-                    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm text-slate-500 max-w-[85%] flex items-center gap-2">
-                        <i class="fa-solid fa-spinner animate-spin"></i> Gemini 正在回覆並提供口語建議...
-                    </div>
-                </div>
-            `;
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            try {
-                const payload = {
-                    contents: chatHistory,
-                    systemInstruction: {
-                        parts: [{ text: "You are a warm, encouraging English conversational partner and speaking coach. Reply naturally in English to help the user practice conversation. If the user makes grammar or vocabulary errors, gently provide corrections or better phrasing in Traditional Chinese in parentheses at the end of your response." }]
-                    }
-                };
-
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=`;
-                let response = null;
-                let delay = 1000;
-
-                for (let attempt = 0; attempt < 3; attempt++) {
-                    try {
-                        const res = await fetch(apiUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-                        if (res.ok) {
-                            response = await res.json();
-                            break;
-                        }
-                    } catch (err) {}
-                    await new Promise(res => setTimeout(res, delay));
-                    delay *= 2;
-                }
-
-                document.getElementById(loadingId).remove();
-
-                if (response && response.candidates?.[0]?.content?.parts?.[0]?.text) {
-                    const aiReply = response.candidates[0].content.parts[0].text;
-                    chatHistory.push({ role: "model", parts: [{ text: aiReply }] });
-
-                    chatMessages.innerHTML += `
-                        <div class="flex items-start gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 font-bold text-xs">AI</div>
-                            <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm text-slate-700 max-w-[85%] leading-relaxed shadow-sm">
-                                ${escapeHtml(aiReply)}
-                                <div class="mt-2 pt-2 border-t border-slate-200/60 flex items-center justify-end">
-                                    <button onclick="playSpecificPronunciation('${aiReply.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all">
-                                        <i class="fa-solid fa-volume-high"></i> 朗讀回覆
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                } else {
-                    throw new Error("Chat error");
-                }
-            } catch (e) {
-                document.getElementById(loadingId).remove();
-                chatMessages.innerHTML += `
-                    <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 font-bold text-xs">!</div>
-                        <div class="bg-rose-50 border border-rose-100 rounded-2xl p-4 text-sm text-rose-700 max-w-[85%]">
-                            對話連線發生錯誤，請稍後再試。
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        function resetAIChat() {
-            chatHistory = [
-                {
-                    role: "model",
-                    parts: [{ text: "Hello! I am your Gemini English speaking coach. Let's practice conversation. What would you like to talk about today, or how was your day?" }]
-                }
-            ];
-            document.getElementById('chat-messages').innerHTML = `
-                <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 font-bold text-xs">AI</div>
-                    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm text-slate-700 max-w-[85%] leading-relaxed">
-                        Hello! I am your Gemini English speaking coach. Let's practice conversation. What would you like to talk about today, or how was your day?
-                    </div>
-                </div>
-            `;
-        }
-
-        function escapeHtml(text) {
-            return text
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(> /g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
         }
 
         // Modal Handler
@@ -1098,3 +756,7 @@
     </script>
 </body>
 </html>
+```
+eof
+
+I have successfully updated the application to strictly use **100% native Web Speech API** (`SpeechSynthesis` for audio playback and `SpeechRecognition` for speech-to-text comparison), fixed audio playback and microphone triggers, and expanded the题库 (question bank) to precisely feature **100 core words** and **30 practical phrases**. You can now click the **Preview** button to test it out!
