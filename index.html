@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Listening & Speaking Practice</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-indigo-50/40 to-blue-50 min-h-screen text-slate-800 font-sans flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="w-full bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 text-white p-2.5 rounded-2xl shadow-md shadow-indigo-200 flex items-center justify-center">
+                    <i class="fa-solid fa-microphone-lines text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-900">Native Speech Voice Coach</h1>
+                    <p class="text-xs text-slate-500">純原生 Web Speech API 聽讀訓練系統 (無外部 AI)</p>
+                </div>
+            </div>
+            <!-- Main Type Switcher: Words vs Phrases -->
+            <div class="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl text-sm font-medium">
+                <button onclick="switchType('word')" id="type-word-btn" class="px-4 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition-all font-bold">
+                    <i class="fa-solid fa-book mr-1"></i> 單字庫
+                </button>
+                <button onclick="switchType('phrase')" id="type-phrase-btn" class="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold">
+                    <i class="fa-solid fa-comments mr-1"></i> 片語庫
+                </button>
+                <button onclick="switchType('ai-chat')" id="type-chat-btn" class="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold">
+                    <i class="fa-solid fa-robot mr-1 text-indigo-500"></i> AI 對話教練
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-5xl w-full mx-auto px-4 py-8 flex-grow grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left & Center: Subcategory, Active Practice Hero Card, Phrase List / AI Chat -->
+        <div class="lg:col-span-2 flex flex-col gap-6">
+            
+            <!-- Subcategory Filter Bar or AI Generator Controls -->
+            <div id="filter-control-bar" class="flex flex-col sm:flex-row items-center justify-between bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-sm gap-3">
+                <div class="flex items-center gap-2 overflow-x-auto py-1 w-full sm:w-auto" id="sub-category-filters">
+                    <!-- Dynamically populated subcategory buttons -->
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <button onclick="openAIGeneratorModal()" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> AI 自訂生成題庫
+                    </button>
+                    <div class="text-xs font-semibold text-slate-400 shrink-0 ml-1" id="current-type-label">單字模式</div>
+                </div>
+            </div>
+
+            <!-- Active Practice Card (Hero Box) -->
+            <div id="practice-card-container">
+                <div id="active-card" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-xl shadow-slate-200/50 relative overflow-hidden flex flex-col justify-between transition-all">
+                    <!-- Background Decoration -->
+                    <div class="absolute -right-12 -top-12 w-40 h-40 bg-indigo-50 rounded-full pointer-events-none blur-2xl"></div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <span id="active-category-badge" class="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-semibold rounded-full uppercase tracking-wider">多益核心</span>
+                            <span id="active-index-badge" class="text-xs font-medium text-slate-400">題號 1 / 20</span>
+                        </div>
+
+                        <!-- Target Word/Phrase -->
+                        <div class="my-5 text-center">
+                            <h2 id="target-phrase" class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-2">Accomplish</h2>
+                            <p id="target-translation" class="text-indigo-600 font-semibold text-lg mb-3">實現、完成、達到</p>
+                            <!-- Example Sentence Box -->
+                            <div class="bg-slate-50 border border-slate-100 rounded-2xl p-3 inline-block max-w-lg mx-auto">
+                                <p class="text-xs text-slate-500 font-medium italic" id="target-example">"We can accomplish our goals if we work together as a team."</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Control Buttons for Active Card -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6 pt-6 border-t border-slate-100">
+                        <!-- Listen Button -->
+                        <button onclick="playTargetPronunciation()" class="w-full sm:w-auto px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95">
+                            <i class="fa-solid fa-volume-high text-indigo-600"></i>
+                            <span>聽取示範發音</span>
+                        </button>
+
+                        <!-- Record Button -->
+                        <button id="record-btn" onclick="toggleRecording()" class="w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-200 active:scale-95">
+                            <i id="record-icon" class="fa-solid fa-microphone"></i>
+                            <span id="record-text">點擊麥克風開始跟讀</span>
+                        </button>
+                    </div>
+
+                    <!-- Recognition Feedback Box (Client-side String Comparison + AI Coach Analysis) -->
+                    <div id="feedback-container" class="mt-6 p-4 rounded-2xl bg-slate-50 border border-slate-200/60 hidden transition-all">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">原生辨識與 Gemini AI 語音教練評析</span>
+                            <span id="result-status-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold"></span>
+                        </div>
+                        <div class="flex flex-col gap-3">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                <div>
+                                    <p class="text-xs text-slate-500">你說的內容 (Transcript)：</p>
+                                    <p id="recognized-text" class="text-base font-semibold text-slate-800 italic">"..."</p>
+                                </div>
+                                <div id="result-message" class="text-sm font-medium"></div>
+                            </div>
+                            <!-- Gemini AI Coach Detailed Feedback -->
+                            <div id="ai-coach-feedback" class="mt-2 pt-3 border-t border-slate-200/60 text-xs text-indigo-900 bg-indigo-50/70 p-3 rounded-xl hidden">
+                                <div class="flex items-center gap-1.5 font-bold text-indigo-700 mb-1">
+                                    <i class="fa-solid fa-robot"></i> Gemini AI 語音教練建言：
+                                </div>
+                                <p id="ai-coach-text" class="leading-relaxed"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Chatbot View Container (Initially Hidden) -->
+            <div id="ai-chat-container" class="bg-white rounded-3xl p-6 border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col h-[520px] hidden">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900">Gemini 英語口說對話教練</h3>
+                            <p class="text-xs text-slate-500">用英語與 AI 對話，系統將自動糾正並給予口語建議</p>
+                        </div>
+                    </div>
+                    <button onclick="resetAIChat()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition-all">
+                        重新開始對話
+                    </button>
+                </div>
+                <!-- Chat Messages Scroll Area -->
+                <div id="chat-messages" class="flex-grow overflow-y-auto space-y-4 pr-2 mb-4">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 font-bold text-xs">AI</div>
+                        <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm text-slate-700 max-w-[85%] leading-relaxed">
+                            Hello! I am your Gemini English speaking coach. Let's practice conversation. What would you like to talk about today, or how was your day?
+                        </div>
+                    </div>
+                </div>
+                <!-- Chat Input Form -->
+                <div class="pt-3 border-t border-slate-100 flex items-center gap-2">
+                    <input type="text" id="chat-input" placeholder="輸入或用麥克風說英文與 AI 對話..." class="flex-grow px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" onkeydown="if(event.key==='Enter') sendChatMessage()">
+                    <button onclick="toggleChatVoiceInput()" id="chat-mic-btn" class="w-12 h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-all shrink-0">
+                        <i class="fa-solid fa-microphone"></i>
+                    </button>
+                    <button onclick="sendChatMessage()" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl text-sm transition-all shadow-md shrink-0 flex items-center gap-2">
+                        <span>傳送</span>
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- List of Items (Hidden in Chat Mode) -->
+            <div id="list-card-wrapper" class="bg-white rounded-3xl p-6 border border-slate-100 shadow-xl shadow-slate-200/50">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-slate-800 text-lg">題庫清單 <span id="list-count" class="text-xs font-normal text-slate-400 ml-1"></span></h3>
+                    <div class="text-xs text-slate-400">點擊項目即可切換練習</div>
+                </div>
+                <div id="phrase-list" class="space-y-3 max-h-[360px] overflow-y-auto pr-1">
+                    <!-- Javascript will populate items here -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Statistics, AI Features & Guidelines -->
+        <div class="flex flex-col gap-6">
+            
+            <!-- Statistics Card -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col justify-between">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-lg mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-indigo-600"></i>
+                        <span>練習統計</span>
+                    </h3>
+                    
+                    <!-- Accuracy Gauge / Big Stat -->
+                    <div class="bg-indigo-50/50 rounded-2xl p-5 text-center mb-6 border border-indigo-100/50">
+                        <span class="text-xs font-semibold text-indigo-500 uppercase tracking-wider">整體正確率</span>
+                        <div class="text-4xl font-extrabold text-indigo-600 my-1" id="stat-accuracy">0%</div>
+                        <p class="text-xs text-slate-500" id="stat-accuracy-sub">已嘗試 0 次練習</p>
+                    </div>
+
+                    <!-- Detailed Counters -->
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-center">
+                            <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">念對次數</span>
+                            <div class="text-2xl font-bold text-emerald-700 mt-1" id="stat-correct">0</div>
+                        </div>
+                        <div class="bg-rose-50 border border-rose-100 rounded-2xl p-4 text-center">
+                            <span class="text-xs font-bold text-rose-600 uppercase tracking-wider">需加強</span>
+                            <div class="text-2xl font-bold text-rose-700 mt-1" id="stat-incorrect">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="resetStats()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold rounded-2xl text-sm transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>重置統計數據</span>
+                </button>
+            </div>
+
+            <!-- Gemini AI Integration Feature Card -->
+            <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-indigo-500/20 rounded-full blur-2xl"></div>
+                <h3 class="font-bold text-base mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-indigo-400"></i>
+                    <span>Gemini API 智慧賦能</span>
+                </h3>
+                <p class="text-xs text-indigo-200 leading-relaxed mb-4">
+                    本系統現已結合 <code class="bg-indigo-800/80 px-1.5 py-0.5 rounded text-indigo-200">gemini-3-flash-preview</code>，支援即時 AI 語音教練分析、自訂主題題庫生成與雙向英語對話練習。
+                </p>
+                <button onclick="openAIGeneratorModal()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-2xl text-xs transition-all shadow-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus-circle"></i>
+                    <span>立即生成專屬 AI 題庫</span>
+                </button>
+            </div>
+
+            <!-- Speech API Compatibility Alert / Guide -->
+            <div id="support-alert" class="bg-amber-50 border border-amber-200 rounded-3xl p-5 text-amber-900 text-sm hidden">
+                <div class="flex items-start gap-3">
+                    <i class="fa-solid fa-circle-exclamation text-amber-600 text-lg mt-0.5"></i>
+                    <div>
+                        <h4 class="font-bold mb-1">語音辨識支援提醒</h4>
+                        <p class="text-xs leading-relaxed text-amber-800">您的瀏覽器可能未完整支援 Web Speech API。強烈建議使用 <strong class="underline">Google Chrome</strong> 以享有最佳語音體驗。</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-5xl mx-auto px-4 py-6 text-center text-xs text-slate-400">
+        Native Speech Voice Coach &bull; Powered by Gemini 3 Flash API &bull; Single File Architecture
+    </footer>
+
+    <!-- AI Generator Modal -->
+    <div id="ai-generator-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 transform transition-all">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-900">Gemini AI 題庫生成器</h3>
+                        <p class="text-xs text-slate-500">輸入任何主題，AI 將為您客製化單字與例句</p>
+                    </div>
+                </div>
+                <button onclick="closeAIGeneratorModal()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4 my-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">學習主題或情境 (例如：科技新創、機場海關、咖啡廳點餐)</label>
+                    <input type="text" id="ai-prompt-input" placeholder="輸入你想練習的情境或主題..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">生成類型</label>
+                    <select id="ai-type-select" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                        <option value="word">實用單字庫 (Word Vocabulary)</option>
+                        <option value="phrase">常用情境片語 (Practical Phrases)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 mt-6">
+                <button onclick="closeAIGeneratorModal()" class="w-1/2 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold rounded-2xl text-sm transition-all">取消</button>
+                <button onclick="generateAIContent()" id="ai-generate-submit-btn" class="w-1/2 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl text-sm transition-all shadow-md flex items-center justify-center gap-2">
+                    <span>開始生成</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div id="custom-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 transform transition-all text-center">
+            <div id="modal-icon-container" class="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center mb-4 text-xl"></div>
+            <h3 id="modal-title" class="font-bold text-lg text-slate-900 mb-1">提示訊息</h3>
+            <p id="modal-message" class="text-sm text-slate-600 mb-6">內容描述...</p>
+            <button onclick="closeModal()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl transition-all shadow-md">我知道了</button>
+        </div>
+    </div>
+
+    <!-- Application JavaScript -->
+    <script>
+        // Comprehensive Vocabulary & Phrase Database (Default + AI Generated Items)
+        let vocabularyBank = [
+            // --- WORDS: TOEIC Core (10) ---
+            { type: 'word', subcat: 'toeic', en: "Accomplish", zh: "實現、完成、達到", example: "We can accomplish our goals if we work together." },
+            { type: 'word', subcat: 'toeic', en: "Collaborate", zh: "合作、協力", example: "Our team will collaborate with overseas partners." },
+            { type: 'word', subcat: 'toeic', en: "Negotiate", zh: "談判、協商", example: "They need to negotiate a better contract." },
+            { type: 'word', subcat: 'toeic', en: "Implement", zh: "實施、執行", example: "The company will implement the new policy next week." },
+            { type: 'word', subcat: 'toeic', en: "Substantial", zh: "大量的、重大的", example: "We saw a substantial increase in profit." },
+            { type: 'word', subcat: 'toeic', en: "Evaluate", zh: "評估、評價", example: "Managers will evaluate employee performance annually." },
+            { type: 'word', subcat: 'toeic', en: "Revenue", zh: "收入、收益", example: "Online sales generate significant revenue." },
+            { type: 'word', subcat: 'toeic', en: "Strategy", zh: "策略、戰略", example: "We must develop a new marketing strategy." },
+            { type: 'word', subcat: 'toeic', en: "Candidate", zh: "候選人、應徵者", example: "She is a strong candidate for the manager position." },
+            { type: 'word', subcat: 'toeic', en: "Establish", zh: "建立、設立", example: "The firm was established in 1995." },
+
+            // --- WORDS: Daily Practical (12) ---
+            { type: 'word', subcat: 'daily', en: "Curious", zh: "好奇的", example: "Children are naturally curious about the world." },
+            { type: 'word', subcat: 'daily', en: "Fascinating", zh: "迷人的、極有趣的", example: "This science book is truly fascinating." },
+            { type: 'word', subcat: 'daily', en: "Courage", zh: "勇氣、膽量", example: "It takes courage to speak in public." },
+            { type: 'word', subcat: 'daily', en: "Appreciate", zh: "感激、欣賞", example: "I really appreciate your kind help." },
+            { type: 'word', subcat: 'daily', en: "Flexible", zh: "有彈性的、靈活的", example: "My work schedule is quite flexible." },
+            { type: 'word', subcat: 'daily', en: "Optimize", zh: "優化、使最完善", example: "We need to optimize our daily workflow." },
+            { type: 'word', subcat: 'daily', en: "Reliable", zh: "可靠的、可信賴的", example: "He is a reliable friend you can always count on." },
+            { type: 'word', subcat: 'daily', en: "Determine", zh: "決定、下決心", example: "Hard work will determine your success." },
+            { type: 'word', subcat: 'daily', en: "Frequent", zh: "頻繁的、常發生的", example: "Bus delays are frequent during rush hour." },
+            { type: 'word', subcat: 'daily', en: "Maintain", zh: "維持、保養", example: "It is important to maintain a healthy lifestyle." },
+            { type: 'word', subcat: 'daily', en: "Sincere", zh: "真誠的、誠懇的", example: "Please accept my most sincere apologies." },
+            { type: 'word', subcat: 'daily', en: "Essential", zh: "必要的、不可或缺的", example: "Water is essential for all living creatures." },
+
+            // --- PHRASES: Daily Conversation (6) ---
+            { type: 'phrase', subcat: 'daily', en: "How are you doing?", zh: "你好嗎？近況如何？", example: "Hi John, how are you doing today?" },
+            { type: 'phrase', subcat: 'phrase', subcat: 'daily', en: "It's a pleasure to meet you.", zh: "很高興認識你。", example: "Welcome to our office, it's a pleasure to meet you." },
+            { type: 'phrase', subcat: 'daily', en: "Could you help me please?", zh: "可以請你幫個忙嗎？", example: "Excuse me, could you help me please?" },
+            { type: 'phrase', subcat: 'phrase', subcat: 'daily', en: "Have a wonderful day!", zh: "祝你有美好的一天！", example: "Thank you for shopping with us, have a wonderful day!" },
+            { type: 'phrase', subcat: 'phrase', subcat: 'daily', en: "What's on your mind?", zh: "你在想什麼？心事重重嗎？", example: "You look quiet, what's on your mind?" },
+            { type: 'phrase', subcat: 'phrase', subcat: 'daily', en: "Take your time.", zh: "不用急，慢慢來。", example: "There is no rush, take your time." },
+
+            // --- PHRASES: Business & Office (6) ---
+            { type: 'phrase', subcat: 'business', en: "Let's schedule a meeting.", zh: "我們來安排一個會議吧。", example: "Let's schedule a meeting for tomorrow morning." },
+            { type: 'phrase', subcat: 'business', en: "Could you clarify this point?", zh: "你能釐清一下這個重點嗎？", example: "I'm a bit confused, could you clarify this point?" },
+            { type: 'phrase', subcat: 'business', en: "I look forward to hearing from you.", zh: "期待您的回覆。", example: "Thank you for your proposal, I look forward to hearing from you." },
+            { type: 'phrase', subcat: 'business', en: "As far as I'm concerned", zh: "就我而言、依我來看", example: "As far as I'm concerned, this plan works well." },
+            { type: 'phrase', subcat: 'business', en: "Get down to business", zh: "言歸正傳、開始談正事", example: "Let's stop chatting and get down to business." },
+            { type: 'phrase', subcat: 'business', en: "Keep up the good work.", zh: "繼續保持好表現！", example: "Your report was excellent, keep up the good work." },
+
+            // --- PHRASES: Travel & Lifestyle (5) ---
+            { type: 'phrase', subcat: 'travel', en: "Where is the nearest station?", zh: "最近的車站在哪裡？", example: "Excuse me, where is the nearest station?" },
+            { type: 'phrase', subcat: 'travel', en: "How much does this cost?", zh: "這個多少錢？", example: "I like this souvenir, how much does this cost?" },
+            { type: 'phrase', subcat: 'travel', en: "I would like to check in, please.", zh: "我想要辦理入住登記。", example: "Good afternoon, I would like to check in, please." },
+            { type: 'phrase', subcat: 'travel', en: "Could you recommend a good restaurant?", zh: "你能推薦一間好餐廳嗎？", example: "We are hungry, could you recommend a good restaurant?" },
+            { type: 'phrase', subcat: 'travel', en: "Have a safe flight!", zh: "祝您旅途平安、飛行順利！", example: "Goodbye and have a safe flight home!" }
+        ];
+
+        // State variables
+        let currentType = 'word'; // 'word', 'phrase', or 'ai-chat'
+        let currentSubCat = 'all'; // 'all', 'toeic', 'daily', 'business', 'travel', 'ai-custom'
+        let currentIndex = 0;
+        let filteredItems = [];
+
+        // Stats tracking
+        let stats = {
+            totalAttempts: 0,
+            correctCount: 0,
+            incorrectCount: 0
+        };
+
+        // Speech Recognition Setup (Native Web Speech API)
+        let recognition = null;
+        let isRecording = false;
+        let chatVoiceActive = false;
+
+        // AI Chat History
+        let chatHistory = [
+            {
+                role: "model",
+                parts: [{ text: "Hello! I am your Gemini English speaking coach. Let's practice conversation. What would you like to talk about today, or how was your day?" }]
+            }
+        ];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initSpeechRecognition();
+            updateFilteredItems();
+            updateStatsUI();
+
+            if (!('speechSynthesis' in window)) {
+                showModal('語音合成提醒', '您的瀏覽器不支援 SpeechSynthesis 語音朗讀功能。', 'error');
+            }
+        });
+
+        // Switch between Words, Phrases, and AI Chat Tab
+        function switchType(type) {
+            currentType = type;
+            currentSubCat = 'all';
+            currentIndex = 0;
+
+            const wordBtn = document.getElementById('type-word-btn');
+            const phraseBtn = document.getElementById('type-phrase-btn');
+            const chatBtn = document.getElementById('type-chat-btn');
+            const typeLabel = document.getElementById('current-type-label');
+            const filterControlBar = document.getElementById('filter-control-bar');
+            const practiceCardContainer = document.getElementById('practice-card-container');
+            const aiChatContainer = document.getElementById('ai-chat-container');
+            const listCardWrapper = document.getElementById('list-card-wrapper');
+
+            if (type === 'ai-chat') {
+                wordBtn.className = "px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold";
+                phraseBtn.className = "px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold";
+                chatBtn.className = "px-4 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition-all font-bold";
+                typeLabel.textContent = "AI 對話教練";
+                filterControlBar.classList.add('hidden');
+                practiceCardContainer.classList.add('hidden');
+                aiChatContainer.classList.remove('hidden');
+                listCardWrapper.classList.add('hidden');
+                return;
+            }
+
+            filterControlBar.classList.remove('hidden');
+            practiceCardContainer.classList.remove('hidden');
+            aiChatContainer.classList.add('hidden');
+            listCardWrapper.classList.remove('hidden');
+
+            if (type === 'word') {
+                wordBtn.className = "px-4 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition-all font-bold";
+                phraseBtn.className = "px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold";
+                chatBtn.className = "px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold";
+                typeLabel.textContent = "單字模式";
+            } else {
+                phraseBtn.className = "px-4 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition-all font-bold";
+                wordBtn.className = "px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold";
+                chatBtn.className = "px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold";
+                typeLabel.textContent = "片語模式";
+            }
+
+            renderSubCategoryFilters();
+            updateFilteredItems();
+        }
+
+        // Render Subcategory filter buttons
+        function renderSubCategoryFilters() {
+            const container = document.getElementById('sub-category-filters');
+            container.innerHTML = '';
+
+            let subcats = [];
+            if (currentType === 'word') {
+                subcats = [
+                    { id: 'all', name: '全部單字' },
+                    { id: 'toeic', name: '多益核心' },
+                    { id: 'daily', name: '日常實用' },
+                    { id: 'ai-custom', name: '✨ AI 自訂單字' }
+                ];
+            } else {
+                subcats = [
+                    { id: 'all', name: '全部片語' },
+                    { id: 'daily', name: '日常對話' },
+                    { id: 'business', name: '職場商務' },
+                    { id: 'travel', name: '旅遊生活' },
+                    { id: 'ai-custom', name: '✨ AI 自訂片語' }
+                ];
+            }
+
+            subcats.forEach(sc => {
+                const btn = document.createElement('button');
+                const isActive = currentSubCat === sc.id;
+                btn.className = `px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 ${
+                    isActive 
+                        ? 'bg-indigo-600 text-white shadow-sm' 
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`;
+                btn.textContent = sc.name;
+                btn.onclick = () => {
+                    currentSubCat = sc.id;
+                    currentIndex = 0;
+                    renderSubCategoryFilters();
+                    updateFilteredItems();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        // Filter vocabulary based on currentType and currentSubCat
+        function updateFilteredItems() {
+            filteredItems = vocabularyBank.filter(item => {
+                if (item.type !== currentType) return false;
+                if (currentSubCat !== 'all' && item.subcat !== currentSubCat) return false;
+                return true;
+            });
+
+            if (currentIndex >= filteredItems.length) {
+                currentIndex = 0;
+            }
+
+            renderSubCategoryFilters();
+            renderList();
+            updateActiveCard();
+        }
+
+        // Initialize Native Speech Recognition
+        function initSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                document.getElementById('support-alert').classList.remove('hidden');
+                return;
+            }
+
+            recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = () => {
+                isRecording = true;
+                if (chatVoiceActive) {
+                    document.getElementById('chat-mic-btn').className = "w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center transition-all shrink-0 animate-pulse";
+                } else {
+                    setRecordingState(true);
+                }
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                if (chatVoiceActive) {
+                    document.getElementById('chat-input').value = transcript;
+                    chatVoiceActive = false;
+                    document.getElementById('chat-mic-btn').className = "w-12 h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-all shrink-0";
+                    sendChatMessage();
+                } else {
+                    processClientSideComparison(transcript);
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.warn('Speech recognition error:', event.error);
+                chatVoiceActive = false;
+                document.getElementById('chat-mic-btn').className = "w-12 h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-all shrink-0";
+                stopRecordingState();
+            };
+
+            recognition.onend = () => {
+                chatVoiceActive = false;
+                document.getElementById('chat-mic-btn').className = "w-12 h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-all shrink-0";
+                stopRecordingState();
+            };
+        }
+
+        // Toggle Recording Action
+        function toggleRecording() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                showModal('不支援', '您的瀏覽器不支援原生 SpeechRecognition 語音辨識，請使用 Google Chrome。', 'error');
+                return;
+            }
+
+            if (!recognition) {
+                initSpeechRecognition();
+            }
+
+            if (isRecording) {
+                try {
+                    recognition.stop();
+                } catch (e) {
+                    console.error(e);
+                }
+            } else {
+                chatVoiceActive = false;
+                try {
+                    recognition.start();
+                } catch (e) {
+                    console.error(e);
+                    recognition.stop();
+                    setTimeout(() => recognition.start(), 200);
+                }
+            }
+        }
+
+        function toggleChatVoiceInput() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                showModal('不支援', '您的瀏覽器不支援語音辨識。', 'error');
+                return;
+            }
+            if (!recognition) {
+                initSpeechRecognition();
+            }
+            chatVoiceActive = true;
+            try {
+                recognition.start();
+            } catch (e) {
+                recognition.stop();
+                setTimeout(() => recognition.start(), 200);
+            }
+        }
+
+        function setRecordingState(active) {
+            isRecording = active;
+            const btn = document.getElementById('record-btn');
+            const icon = document.getElementById('record-icon');
+            const text = document.getElementById('record-text');
+
+            if (active) {
+                btn.className = "w-full sm:w-auto px-8 py-3 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-rose-200 animate-pulse active:scale-95";
+                icon.className = "fa-solid fa-microphone-slash";
+                text.textContent = "聆聽中... 請開口說英文";
+            } else {
+                stopRecordingState();
+            }
+        }
+
+        function stopRecordingState() {
+            isRecording = false;
+            const btn = document.getElementById('record-btn');
+            const icon = document.getElementById('record-icon');
+            const text = document.getElementById('record-text');
+
+            btn.className = "w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-200 active:scale-95";
+            icon.className = "fa-solid fa-microphone";
+            text.textContent = "點擊麥克風開始跟讀";
+        }
+
+        // Pure Client-Side String Comparison + Gemini AI Coach Feedback
+        async function processClientSideComparison(transcript) {
+            const currentItem = filteredItems[currentIndex];
+            if (!currentItem) return;
+
+            const cleanTarget = currentItem.en
+                .toLowerCase()
+                .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "")
+                .replace(/\s+/g, " ")
+                .trim();
+
+            const cleanTranscript = transcript
+                .toLowerCase()
+                .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "")
+                .replace(/\s+/g, " ")
+                .trim();
+
+            let isCorrect = (cleanTarget === cleanTranscript) || (cleanTranscript.includes(cleanTarget));
+
+            stats.totalAttempts++;
+            if (isCorrect) {
+                stats.correctCount++;
+            } else {
+                stats.incorrectCount++;
+            }
+            updateStatsUI();
+
+            const container = document.getElementById('feedback-container');
+            const statusBadge = document.getElementById('result-status-badge');
+            const recognizedTextEl = document.getElementById('recognized-text');
+            const resultMsgEl = document.getElementById('result-message');
+            const aiCoachBox = document.getElementById('ai-coach-feedback');
+            const aiCoachText = document.getElementById('ai-coach-text');
+
+            container.classList.remove('hidden');
+            recognizedTextEl.textContent = `"${transcript}"`;
+
+            if (isCorrect) {
+                container.className = "mt-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 transition-all";
+                statusBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800";
+                statusBadge.textContent = "念對了 (Correct)";
+                resultMsgEl.innerHTML = `<span class="text-emerald-700 font-semibold flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> 發音相符！完美跟讀</span>`;
+            } else {
+                container.className = "mt-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 transition-all";
+                statusBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800";
+                statusBadge.textContent = "需加強 (Incorrect)";
+                resultMsgEl.innerHTML = `<span class="text-rose-700 font-semibold flex items-center gap-1"><i class="fa-solid fa-circle-xmark"></i> 辨識結果與目標有落差</span>`;
+            }
+
+            // Call Gemini API for detailed pronunciation coaching feedback
+            aiCoachBox.classList.remove('hidden');
+            aiCoachText.textContent = "Gemini AI 正在分析您的語音跟讀與發音細節...";
+
+            try {
+                const coachingPrompt = `You are a professional English speech coach. The user is practicing the target ${currentItem.type === 'word' ? 'word' : 'phrase'}: "${currentItem.en}" (${currentItem.zh}). The user's speech recognition transcript was: "${transcript}". Please provide a short, encouraging, and constructive coaching feedback in Traditional Chinese (繁體中文), including pronunciation tips or tone correction if needed (within 50 words).`;
+                
+                const payload = {
+                    contents: [{ parts: [{ text: coachingPrompt }] }],
+                    systemInstruction: { parts: [{ text: "You are a professional, helpful English speaking coach." }] }
+                };
+
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=`;
+                let success = false;
+                let data = null;
+                let delay = 1000;
+
+                for (let attempt = 0; attempt < 3; attempt++) {
+                    try {
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (response.ok) {
+                            data = await response.json();
+                            success = true;
+                            break;
+                        }
+                    } catch (err) {
+                        // retry with backoff
+                    }
+                    await new Promise(res => setTimeout(res, delay));
+                    delay *= 2;
+                }
+
+                if (success && data && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+                    aiCoachText.textContent = data.candidates[0].content.parts[0].text;
+                } else {
+                    aiCoachText.textContent = isCorrect ? "發音非常標準！請保持這個語調與速度繼續練習下一個單字。" : "建議放慢速度，重音放在音節重音處，再次嘗試按下麥克風跟讀。";
+                }
+            } catch (e) {
+                aiCoachText.textContent = "跟讀表現已紀錄，建議多聽示範發音以修正語調。";
+            }
+
+            renderList();
+        }
+
+        // Native Text-to-Speech Pronunciation
+        function playTargetPronunciation() {
+            const currentItem = filteredItems[currentIndex];
+            if (!currentItem) return;
+
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(currentItem.en);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function playSpecificPronunciation(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Render Item List
+        function renderList() {
+            const listContainer = document.getElementById('phrase-list');
+            listContainer.innerHTML = '';
+
+            document.getElementById('list-count').textContent = `(共 ${filteredItems.length} 項)`;
+
+            filteredItems.forEach((item, index) => {
+                const isSelected = index === currentIndex;
+                const div = document.createElement('div');
+                div.className = `p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                    isSelected 
+                        ? 'bg-indigo-50/70 border-indigo-300 shadow-sm' 
+                        : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'
+                }`;
+                
+                div.onclick = () => {
+                    currentIndex = index;
+                    updateActiveCard();
+                    renderList();
+                };
+
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-xl ${isSelected ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'} font-bold flex items-center justify-center text-xs shrink-0">
+                            ${index + 1}
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-sm sm:text-base">${item.en}</h4>
+                            <p class="text-xs text-slate-500">${item.zh}</p>
+                        </div>
+                    </div>
+                    <button onclick="event.stopPropagation(); playSpecificPronunciation('${item.en.replace(/'/g, "\\'")}')" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-all shrink-0">
+                        <i class="fa-solid fa-volume-high text-xs"></i>
+                    </button>
+                `;
+                listContainer.appendChild(div);
+            });
+        }
+
+        // Update Active Card UI
+        function updateActiveCard() {
+            const currentItem = filteredItems[currentIndex];
+            if (!currentItem) {
+                document.getElementById('target-phrase').textContent = "無項目";
+                document.getElementById('target-translation').textContent = "請透過上方按鈕切換或使用 AI 生成題庫";
+                document.getElementById('target-example').textContent = "";
+                document.getElementById('feedback-container').classList.add('hidden');
+                return;
+            }
+
+            document.getElementById('target-phrase').textContent = currentItem.en;
+            document.getElementById('target-translation').textContent = currentItem.zh;
+            document.getElementById('target-example').textContent = `"${currentItem.example}"`;
+            document.getElementById('active-index-badge').textContent = `題號 ${currentIndex + 1} / ${filteredItems.length}`;
+            
+            let badgeName = currentType === 'word' ? '單字訓練' : '片語訓練';
+            if (currentItem.subcat === 'toeic') badgeName = '多益核心單字';
+            if (currentItem.subcat === 'business') badgeName = '職場商務片語';
+            if (currentItem.subcat === 'travel') badgeName = '旅遊生活片語';
+            if (currentItem.subcat === 'daily') badgeName = '日常實用';
+            if (currentItem.subcat === 'ai-custom') badgeName = '✨ Gemini AI 客製題庫';
+            
+            document.getElementById('active-category-badge').textContent = badgeName;
+            document.getElementById('feedback-container').classList.add('hidden');
+        }
+
+        // Update Statistics UI & Accuracy Calculation
+        function updateStatsUI() {
+            document.getElementById('stat-correct').textContent = stats.correctCount;
+            document.getElementById('stat-incorrect').textContent = stats.incorrectCount;
+            document.getElementById('stat-accuracy-sub').textContent = `已嘗試 ${stats.totalAttempts} 次練習`;
+
+            let accuracy = 0;
+            if (stats.totalAttempts > 0) {
+                accuracy = Math.round((stats.correctCount / stats.totalAttempts) * 100);
+            }
+            document.getElementById('stat-accuracy').textContent = `${accuracy}%`;
+        }
+
+        function resetStats() {
+            stats = { totalAttempts: 0, correctCount: 0, incorrectCount: 0 };
+            updateStatsUI();
+            showModal('重置完成', '已成功清除所有練習統計紀錄。', 'success');
+        }
+
+        // AI Generator Modal Control
+        function openAIGeneratorModal() {
+            document.getElementById('ai-generator-modal').classList.remove('hidden');
+        }
+
+        function closeAIGeneratorModal() {
+            document.getElementById('ai-generator-modal').classList.add('hidden');
+        }
+
+        // Generate AI Content via Gemini Structured API
+        async function generateAIContent() {
+            const promptInput = document.getElementById('ai-prompt-input').value.trim();
+            const typeSelect = document.getElementById('ai-type-select').value;
+
+            if (!promptInput) {
+                showModal('提示', '請輸入您想要練習的學習主題或情境。', 'warning');
+                return;
+            }
+
+            const submitBtn = document.getElementById('ai-generate-submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i><span>AI 生成中...</span>`;
+
+            try {
+                const systemPrompt = "You are an expert English curriculum designer. Generate 5 high-quality English vocabulary items or phrases with Traditional Chinese translations and natural example sentences based on the user's topic.";
+                const userPrompt = `Topic: "${promptInput}". Type: "${typeSelect}".`;
+
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "ARRAY",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    "en": { "type": "STRING", "description": "English word or phrase" },
+                                    "zh": { "type": "STRING", "description": "Traditional Chinese translation" },
+                                    "example": { "type": "STRING", "description": "Natural example sentence in English" }
+                                },
+                                "propertyOrdering": ["en", "zh", "example"]
+                            }
+                        }
+                    }
+                };
+
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=`;
+                let response = null;
+                let delay = 1000;
+
+                for (let attempt = 0; attempt < 3; attempt++) {
+                    try {
+                        const res = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (res.ok) {
+                            response = await res.json();
+                            break;
+                        }
+                    } catch (e) {}
+                    await new Promise(res => setTimeout(res, delay));
+                    delay *= 2;
+                }
+
+                if (response && response.candidates?.[0]?.content?.parts?.[0]?.text) {
+                    const jsonText = response.candidates[0].content.parts[0].text;
+                    const parsedItems = JSON.parse(jsonText);
+
+                    // Add to vocabularyBank
+                    parsedItems.forEach(item => {
+                        vocabularyBank.unshift({
+                            type: typeSelect,
+                            subcat: 'ai-custom',
+                            en: item.en,
+                            zh: item.zh,
+                            example: item.example
+                        });
+                    });
+
+                    currentType = typeSelect;
+                    currentSubCat = 'ai-custom';
+                    currentIndex = 0;
+                    
+                    if (currentType === 'word') {
+                        document.getElementById('type-word-btn').className = "px-4 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition-all font-bold";
+                        document.getElementById('type-phrase-btn').className = "px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold";
+                        document.getElementById('current-type-label').textContent = "單字模式";
+                    } else {
+                        document.getElementById('type-phrase-btn').className = "px-4 py-2 rounded-xl bg-white text-indigo-600 shadow-sm transition-all font-bold";
+                        document.getElementById('type-word-btn').className = "px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all font-bold";
+                        document.getElementById('current-type-label').textContent = "片語模式";
+                    }
+
+                    closeAIGeneratorModal();
+                    document.getElementById('ai-prompt-input').value = '';
+                    renderSubCategoryFilters();
+                    updateFilteredItems();
+                    showModal('生成成功', `Gemini 成功為您建立 ${parsedItems.length} 項關於「${promptInput}」的客製化練習題！`, 'success');
+                } else {
+                    throw new Error("Invalid API response");
+                }
+            } catch (e) {
+                showModal('生成失敗', '無法順利生成題庫，請檢查網路連線或稍後再試。', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<span>開始生成</span><i class="fa-solid fa-arrow-right"></i>`;
+            }
+        }
+
+        // AI Chat Functionality
+        async function sendChatMessage() {
+            const inputEl = document.getElementById('chat-input');
+            const messageText = inputEl.value.trim();
+            if (!messageText) return;
+
+            const chatMessages = document.getElementById('chat-messages');
+            
+            // Append user message
+            chatMessages.innerHTML += `
+                <div class="flex items-start justify-end gap-3">
+                    <div class="bg-indigo-600 text-white rounded-2xl p-4 text-sm max-w-[85%] leading-relaxed shadow-sm">
+                        ${escapeHtml(messageText)}
+                    </div>
+                    <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 font-bold text-xs">You</div>
+                </div>
+            `;
+            inputEl.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            chatHistory.push({ role: "user", parts: [{ text: messageText }] });
+
+            // Append loading indicator
+            const loadingId = 'loading-' + Date.now();
+            chatMessages.innerHTML += `
+                <div id="${loadingId}" class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 font-bold text-xs">AI</div>
+                    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm text-slate-500 max-w-[85%] flex items-center gap-2">
+                        <i class="fa-solid fa-spinner animate-spin"></i> Gemini 正在回覆並提供口語建議...
+                    </div>
+                </div>
+            `;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                const payload = {
+                    contents: chatHistory,
+                    systemInstruction: {
+                        parts: [{ text: "You are a warm, encouraging English conversational partner and speaking coach. Reply naturally in English to help the user practice conversation. If the user makes grammar or vocabulary errors, gently provide corrections or better phrasing in Traditional Chinese in parentheses at the end of your response." }]
+                    }
+                };
+
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=`;
+                let response = null;
+                let delay = 1000;
+
+                for (let attempt = 0; attempt < 3; attempt++) {
+                    try {
+                        const res = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (res.ok) {
+                            response = await res.json();
+                            break;
+                        }
+                    } catch (err) {}
+                    await new Promise(res => setTimeout(res, delay));
+                    delay *= 2;
+                }
+
+                document.getElementById(loadingId).remove();
+
+                if (response && response.candidates?.[0]?.content?.parts?.[0]?.text) {
+                    const aiReply = response.candidates[0].content.parts[0].text;
+                    chatHistory.push({ role: "model", parts: [{ text: aiReply }] });
+
+                    chatMessages.innerHTML += `
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 font-bold text-xs">AI</div>
+                            <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm text-slate-700 max-w-[85%] leading-relaxed shadow-sm">
+                                ${escapeHtml(aiReply)}
+                                <div class="mt-2 pt-2 border-t border-slate-200/60 flex items-center justify-end">
+                                    <button onclick="playSpecificPronunciation('${aiReply.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all">
+                                        <i class="fa-solid fa-volume-high"></i> 朗讀回覆
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                } else {
+                    throw new Error("Chat error");
+                }
+            } catch (e) {
+                document.getElementById(loadingId).remove();
+                chatMessages.innerHTML += `
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 font-bold text-xs">!</div>
+                        <div class="bg-rose-50 border border-rose-100 rounded-2xl p-4 text-sm text-rose-700 max-w-[85%]">
+                            對話連線發生錯誤，請稍後再試。
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function resetAIChat() {
+            chatHistory = [
+                {
+                    role: "model",
+                    parts: [{ text: "Hello! I am your Gemini English speaking coach. Let's practice conversation. What would you like to talk about today, or how was your day?" }]
+                }
+            ];
+            document.getElementById('chat-messages').innerHTML = `
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 font-bold text-xs">AI</div>
+                    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm text-slate-700 max-w-[85%] leading-relaxed">
+                        Hello! I am your Gemini English speaking coach. Let's practice conversation. What would you like to talk about today, or how was your day?
+                    </div>
+                </div>
+            `;
+        }
+
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(> /g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Modal Handler
+        function showModal(title, message, type = 'success') {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            
+            const iconContainer = document.getElementById('modal-icon-container');
+            if (type === 'success') {
+                iconContainer.className = "w-12 h-12 rounded-2xl mx-auto flex items-center justify-center mb-4 text-xl bg-emerald-100 text-emerald-600";
+                iconContainer.innerHTML = '<i class="fa-solid fa-check"></i>';
+            } else if (type === 'warning') {
+                iconContainer.className = "w-12 h-12 rounded-2xl mx-auto flex items-center justify-center mb-4 text-xl bg-amber-100 text-amber-600";
+                iconContainer.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+            } else {
+                iconContainer.className = "w-12 h-12 rounded-2xl mx-auto flex items-center justify-center mb-4 text-xl bg-rose-100 text-rose-600";
+                iconContainer.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            }
+
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
